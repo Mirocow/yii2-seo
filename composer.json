@@ -10,8 +10,7 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=5.4.0",
-    "yiisoft/yii2": ">=2.0.0",
-    "devgroup/yii2-tag-dependency-helper": "dev-master"
+    "yiisoft/yii2": ">=2.0.13"
   },
   "autoload": {
     "psr-4": {
