@@ -1,0 +1,21 @@
+{
+  "name": "mirocow/yii2-seo",
+  "description": "Yii2 seo plugin",
+  "type": "extension",
+  "license": "GPL-v3",
+  "support": {
+    "issues": "https://github.com/mirocow/yii2-seo",
+    "source": "https://github.com/mirocow/yii2-seo"
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4.0",
+    "yiisoft/yii2": ">=2.0.0",
+    "devgroup/yii2-tag-dependency-helper": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "mirocow\\seo\\": ""
+    }
+  }
+}
