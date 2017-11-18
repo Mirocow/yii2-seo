@@ -1,7 +1,7 @@
 {
   "name": "mirocow/yii2-seo",
   "description": "Yii2 seo plugin",
-  "type": "extension",
+  "type": "yii2-extension",
   "license": "GPL-v3",
   "support": {
     "issues": "https://github.com/mirocow/yii2-seo",
