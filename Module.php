@@ -23,7 +23,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
     public $backendMode = true;
 
-    public $basePath = 'mirocow\seo\admin\views';
+    public $basePath = '@mirocow/seo/admin';
 
     /**
      * @var array
@@ -66,6 +66,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
             $this->setModule('admin', [
                 'class' => 'mirocow\seo\admin\Module',
                 'controllerMap' => $this->controllerMap,
+                'basePath' => $this->basePath,
             ]);
         }
     }

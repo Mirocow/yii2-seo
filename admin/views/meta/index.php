@@ -30,7 +30,11 @@ $this->params['breadcrumbs'][] = $this->title;
             'content',
             'lang',
 
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{update}{delete}',
+                'headerOptions' => ['width' => '50px'],
+            ],
         ],
     ]); ?>
 </div>
