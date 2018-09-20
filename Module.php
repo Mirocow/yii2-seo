@@ -2,11 +2,9 @@
 
 namespace mirocow\seo;
 
-use mirocow\seo\components\MetaFieldsBehavior;
 use mirocow\seo\models\Meta;
 use Yii;
 use yii\base\BootstrapInterface;
-use yii\caching\TagDependency;
 use yii\web\Application;
 use yii\web\View;
 
@@ -22,6 +20,19 @@ class Module extends \yii\base\Module implements BootstrapInterface
     const NO_REDIRECT = 0;
     const FROM_WWW = 1;
     const FROM_WITHOUT_WWW = 2;
+
+    public $backendMode = true;
+
+    public $basePath = 'mirocow\seo\admin\views';
+
+    /**
+     * @var array
+     */
+    public $controllerMap = [
+        'meta' => [
+            'class' => 'mirocow\seo\admin\controllers\MetaController',
+        ],
+    ];
 
     /**
      * @var int
@@ -46,6 +57,18 @@ class Module extends \yii\base\Module implements BootstrapInterface
      * @var array
      */
     private $_models = [];
+
+    public function init()
+    {
+        parent::init();
+
+        if (($app = Yii::$app) instanceof \yii\web\Application AND $this->backendMode) {
+            $this->setModule('admin', [
+                'class' => 'mirocow\seo\admin\Module',
+                'controllerMap' => $this->controllerMap,
+            ]);
+        }
+    }
 
     /**
      * Returns an array of meta-fields.
@@ -158,13 +181,13 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
 
         $cacheExpire = Yii::$app->getModule('seo')->cacheExpire;
-        $cacheUrlName = ltrim(\Yii::$app->request->pathInfo, '/');
+        $cacheUrlName = ltrim(\Yii::$app->request->url, '/');
 
         $metas = Yii::$app->getCache()->get($cacheUrlName);
         if ($metas === false) {
             $rows = Meta::find()->asArray()->all();
             foreach ($rows as $row) {
-                if (preg_match('~' . $row['key'] . '~', $cacheUrlName, $matches)) {
+                if (preg_match('~' . preg_quote($row['key']) . '~', $cacheUrlName, $matches)) {
                     $metas[ $row['name'] ] = $row;
                 }
             }
@@ -194,4 +217,19 @@ class Module extends \yii\base\Module implements BootstrapInterface
             }
         }
     }
+
+    /**
+     * @param string $route
+     * @return array|bool
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function createController($route)
+    {
+        if (strpos($route, 'admin/') !== false) {
+            return $this->getModule('admin')->createController(str_replace('admin/', '', $route));
+        } else {
+            return parent::createController($route);
+        }
+    }
+
 }

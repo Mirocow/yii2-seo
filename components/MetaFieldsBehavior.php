@@ -154,7 +154,7 @@ class MetaFieldsBehavior extends Behavior
         if($this->isProduceFunc($fieldName)) {
             $cacheUrlName = $this->getSeoUrl();
             $meta = $this->getMetaData($cacheUrlName, $lang);
-            if(!$meta){
+            if(empty($meta[$fieldName])){
                 return false;
             }
             return $meta[$fieldName];

@@ -86,4 +86,13 @@ class Meta extends ActiveRecord
         return $dataProvider;
     }
 
+    public function getMetaFields()
+    {
+        return [
+            Meta::KEY_TITLE => 'Title',
+            Meta::KEY_DESCRIPTION => 'Description',
+            Meta::KEY_KEYWORDS => 'Keywords',
+        ];
+    }
+
 }
