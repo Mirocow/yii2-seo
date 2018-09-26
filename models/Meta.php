@@ -6,9 +6,12 @@ use app\backend\BackendModule;
 use app\backend\components\BackendController;
 use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
+use mirocow\seo\helpers\UrlHelper;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveRecord;
+use yii\helpers\Url;
+use yii\web\Request;
 
 /**
  * This is the model class for table "seo_meta".
@@ -59,6 +62,15 @@ class Meta extends ActiveRecord
           'content' => \Yii::t('app', 'Content'),
           'lang' => \Yii::t('app', 'Language'),
         ];
+    }
+
+    public function beforeValidate()
+    {
+        if($this->key) {
+            $this->key = UrlHelper::clean($this->key);
+        }
+
+        return parent::beforeValidate();
     }
 
     /**

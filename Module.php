@@ -2,6 +2,7 @@
 
 namespace mirocow\seo;
 
+use mirocow\seo\helpers\UrlHelper;
 use mirocow\seo\models\Meta;
 use Yii;
 use yii\base\BootstrapInterface;
@@ -182,7 +183,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
 
         $cacheExpire = Yii::$app->getModule('seo')->cacheExpire;
-        $cacheUrlName = ltrim(\Yii::$app->request->url, '/');
+        $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
 
         $metas = Yii::$app->getCache()->get($cacheUrlName);
         if ($metas === false) {
