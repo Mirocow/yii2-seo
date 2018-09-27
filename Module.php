@@ -184,6 +184,10 @@ class Module extends \yii\base\Module implements BootstrapInterface
         $cacheExpire = Yii::$app->getModule('seo')->cacheExpire;
         $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
 
+        if(YII_DEBUG){
+            Yii::$app->getCache()->delete($cacheUrlName);
+        }
+
         $metas = Yii::$app->getCache()->get($cacheUrlName);
         if ($metas === false) {
             $rows = Meta::find()->asArray()->all();
