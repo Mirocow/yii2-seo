@@ -1,8 +1,8 @@
 <?php
 
 use mirocow\seo\Module;
-use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $searchModel mirocow\seo\models\MetaSearch */
@@ -26,7 +26,10 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'key',
+            [
+                'attribute' => 'key',
+                'headerOptions' => ['width' => '150px'],
+            ],
             [
                 'attribute' => 'name',
                 'filter' => Module::getMetaFields(null, false),
