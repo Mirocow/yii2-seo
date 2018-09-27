@@ -1,5 +1,6 @@
 <?php
 
+use mirocow\seo\models\Meta;
 use mirocow\seo\Module;
 use yii\grid\GridView;
 use yii\helpers\Html;
@@ -33,6 +34,9 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'attribute' => 'name',
                 'filter' => Module::getMetaFields(null, false),
+                'value'     => function (Meta $model, $key, $index, $widget) {
+                    return Module::keyToName($model->name);
+                },
             ],
             'content',
             'lang',

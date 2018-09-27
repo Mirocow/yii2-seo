@@ -96,7 +96,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
      */
     public static function keyToName($key)
     {
-        $labels = self::getMetaFields();
+        $labels = self::getMetaFields(null, false);
 
         return isset($labels[$key]) ? $labels[$key] : 'Uncknow';
     }
