@@ -4,14 +4,10 @@ namespace mirocow\seo\models;
 
 use app\backend\BackendModule;
 use app\backend\components\BackendController;
-use DevGroup\TagDependencyHelper\CacheableActiveRecord;
 use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use mirocow\seo\helpers\UrlHelper;
-use Yii;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveRecord;
-use yii\helpers\Url;
-use yii\web\Request;
 
 /**
  * This is the model class for table "seo_meta".
@@ -20,6 +16,7 @@ use yii\web\Request;
  * @property string $name
  * @property integer $content
  * @property string $lang
+ * @property string $hash
  * @property string metaFieldName
  */
 class Meta extends ActiveRecord
@@ -48,10 +45,11 @@ class Meta extends ActiveRecord
     public function rules()
     {
         return [
-          [['key', 'name', 'content','lang'], 'required'],
-          [['key'], 'unique'],
-          [['key', 'name', 'content'], 'string', 'max' => 255],
-          [['lang'], 'string', 'max' => 5]
+            [['key', 'name', 'content', 'lang'], 'required'],
+            [['hash'], 'string', 'max' => 32],
+            [['key', 'name', 'lang'], 'unique', 'targetAttribute' => ['hash']],
+            [['key', 'name', 'content'], 'string', 'max' => 255],
+            [['lang'], 'string', 'max' => 5]
         ];
     }
 
@@ -61,10 +59,10 @@ class Meta extends ActiveRecord
     public function attributeLabels()
     {
         return [
-          'key' => \Yii::t('app', 'Key'),
-          'name' => \Yii::t('app', 'Name'),
-          'content' => \Yii::t('app', 'Content'),
-          'lang' => \Yii::t('app', 'Language'),
+            'key' => \Yii::t('app', 'Key'),
+            'name' => \Yii::t('app', 'Name'),
+            'content' => \Yii::t('app', 'Content'),
+            'lang' => \Yii::t('app', 'Language'),
         ];
     }
 
@@ -73,6 +71,8 @@ class Meta extends ActiveRecord
         if($this->key) {
             $this->key = UrlHelper::clean($this->key);
         }
+
+        $this->hash = md5($this->key . $this->name . $this->lang);
 
         return parent::beforeValidate();
     }

@@ -12,7 +12,8 @@ class m180912_200231_alter_table_seo_meta extends Migration
      */
     public function safeUp()
     {
-        $this->addPrimaryKey('pk_seo_meta', 'seo_meta', ['key']);
+        $this->addColumn('{{%seo_meta}}', 'id', $this->primaryKey(11));
+        $this->addColumn('{{%seo_meta}}', 'hash', $this->string(32)->unique());
     }
 
     /**
