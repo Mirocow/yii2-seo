@@ -74,7 +74,7 @@ class MetaFieldsBehavior extends Behavior
      */
     public function getSeoUrl()
     {
-        if($this->isProduceFunc('seoUrl')) {
+        if($this->isProduceFunc(Meta::KEY_URL)) {
             return $this->owner->getSeoUrl();
         }
     }
@@ -84,8 +84,8 @@ class MetaFieldsBehavior extends Behavior
      */
     public function setSeoUrl($value)
     {
-        if($this->isProduceFunc('seoUrl')) {
-            return $this->owner->seoUrl = $value;
+        if($this->isProduceFunc(Meta::KEY_URL)) {
+            return $this->owner->{Meta::KEY_URL} = $value;
         }
     }
 
@@ -146,6 +146,66 @@ class MetaFieldsBehavior extends Behavior
     {
         if($this->isProduceFunc(Meta::KEY_KEYWORDS)) {
             return $this->owner->{Meta::KEY_KEYWORDS} = $value;
+        }
+    }
+
+    /**
+     * @param null $lang
+     * @return bool|mixed
+     */
+    public function getSeoH1($lang = null)
+    {
+        return $this->setSeoField(Meta::KEY_H1, $lang);
+    }
+
+    /**
+     * @param $value
+     * @return mixed
+     */
+    public function setSeoH1($value)
+    {
+        if($this->isProduceFunc(Meta::KEY_H1)) {
+            return $this->owner->{Meta::KEY_H1} = $value;
+        }
+    }
+
+    /**
+     * @param null $lang
+     * @return bool|mixed
+     */
+    public function getSeoH2($lang = null)
+    {
+        return $this->setSeoField(Meta::KEY_H2, $lang);
+    }
+
+    /**
+     * @param $value
+     * @return mixed
+     */
+    public function setSeoH2($value)
+    {
+        if($this->isProduceFunc(Meta::KEY_H2)) {
+            return $this->owner->{Meta::KEY_H2} = $value;
+        }
+    }
+
+    /**
+     * @param null $lang
+     * @return bool|mixed
+     */
+    public function getSeoH3($lang = null)
+    {
+        return $this->setSeoField(Meta::KEY_H3, $lang);
+    }
+
+    /**
+     * @param $value
+     * @return mixed
+     */
+    public function setSeoH3($value)
+    {
+        if($this->isProduceFunc(Meta::KEY_H3)) {
+            return $this->owner->{Meta::KEY_H3} = $value;
         }
     }
 

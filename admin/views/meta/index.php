@@ -1,5 +1,6 @@
 <?php
 
+use mirocow\seo\Module;
 use yii\helpers\Html;
 use yii\grid\GridView;
 
@@ -26,7 +27,10 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'key',
-            'name',
+            [
+                'attribute' => 'name',
+                'filter' => Module::getMetaFields(null, false),
+            ],
             'content',
             'lang',
 

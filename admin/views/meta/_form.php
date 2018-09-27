@@ -1,5 +1,6 @@
 <?php
 
+use mirocow\seo\Module;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -16,7 +17,7 @@ use yii\widgets\ActiveForm;
         ->hint('Example: http://sile.loc/about, about, about/page-1.html', ['class'=>'form-text text-muted']) ?>
 
     <?= $form->field($model, 'name')
-        ->dropDownList(\mirocow\seo\models\Meta::getMetaFields(),['prompt'=>'Select meta name'])
+        ->dropDownList(Module::getMetaFields(null, false),['prompt'=>'Select meta name'])
         ->hint('', ['class'=>'form-text text-muted']) ?>
 
     <?= $form->field($model, 'content')->textInput(['maxlength' => true])

@@ -77,15 +77,18 @@ class Module extends \yii\base\Module implements BootstrapInterface
      * @param null $key
      * @return array|mixed
      */
-    public static function getMetaFields($key = null)
+    public static function getMetaFields($key = null, $returnOnlyKeys = true)
     {
         $fields = [
-          Meta::KEY_TITLE,
-          Meta::KEY_DESCRIPTION,
-          Meta::KEY_KEYWORDS,
+            Meta::KEY_TITLE => 'Title',
+            Meta::KEY_DESCRIPTION => 'Description',
+            Meta::KEY_KEYWORDS => 'Keywords',
+            Meta::KEY_H1 => 'H1',
+            Meta::KEY_H2 => 'H2',
+            Meta::KEY_H3 => 'H3',
         ];
 
-        return isset($fields[$key]) ? $fields[$key] : $fields;
+        return isset($fields[$key]) ? $fields[$key] : ($returnOnlyKeys? array_keys($fields): $fields);
     }
 
     /**
@@ -93,13 +96,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
      */
     public static function keyToName($key)
     {
-        $labels = [
-          Meta::KEY_TITLE => 'Title',
-          Meta::KEY_DESCRIPTION => 'Description',
-          Meta::KEY_KEYWORDS => 'Keywords'
-        ];
+        $labels = self::getMetaFields();
 
-        return isset($labels[$key])? $labels[$key]: 'Uncknow';
+        return isset($labels[$key]) ? $labels[$key] : 'Uncknow';
     }
 
     /**
@@ -112,17 +111,17 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
 
         $app->on(
-          Application::EVENT_BEFORE_REQUEST,
-          function () use ($app) {
-              if ($app->getModule('seo')->redirectWWW != self::NO_REDIRECT) {
-                  self::redirectWWW();
-              }
-              if ($app->getModule('seo')->redirectTrailingSlash == 1) {
-                  self::redirectSlash();
-              }
+            Application::EVENT_BEFORE_REQUEST,
+            function () use ($app) {
+                if ($app->getModule('seo')->redirectWWW != self::NO_REDIRECT) {
+                    self::redirectWWW();
+                }
+                if ($app->getModule('seo')->redirectTrailingSlash == 1) {
+                    self::redirectSlash();
+                }
 
-              $app->getView()->on(View::EVENT_BEGIN_PAGE, [self::class, 'registrationMeta'], $this->include);
-          }
+                $app->getView()->on(View::EVENT_BEGIN_PAGE, [self::class, 'registrationMeta'], $this->include);
+            }
         );
     }
 
@@ -134,24 +133,24 @@ class Module extends \yii\base\Module implements BootstrapInterface
         $type = Yii::$app->getModule('seo')->redirectWWW;
         if ($type != self::NO_REDIRECT) {
             $readirArr = [
-              self::FROM_WITHOUT_WWW => function () {
-                  if (preg_match('#^(http|https):\/\/www\.#i', Yii::$app->request->hostInfo) === 0) {
-                      Yii::$app->response->redirect(
-                        str_replace('://', '://www.', Yii::$app->request->absoluteUrl),
-                        301
-                      );
-                      Yii::$app->end();
-                  }
-              },
-              self::FROM_WWW => function () {
-                  if (preg_match('#^(http|https):\/\/www\.#i', Yii::$app->request->hostInfo) === 1) {
-                      Yii::$app->response->redirect(
-                        str_replace('://www.', '://', Yii::$app->request->absoluteUrl),
-                        301
-                      );
-                      Yii::$app->end();
-                  }
-              },
+                self::FROM_WITHOUT_WWW => function () {
+                    if (preg_match('#^(http|https):\/\/www\.#i', Yii::$app->request->hostInfo) === 0) {
+                        Yii::$app->response->redirect(
+                            str_replace('://', '://www.', Yii::$app->request->absoluteUrl),
+                            301
+                        );
+                        Yii::$app->end();
+                    }
+                },
+                self::FROM_WWW => function () {
+                    if (preg_match('#^(http|https):\/\/www\.#i', Yii::$app->request->hostInfo) === 1) {
+                        Yii::$app->response->redirect(
+                            str_replace('://www.', '://', Yii::$app->request->absoluteUrl),
+                            301
+                        );
+                        Yii::$app->end();
+                    }
+                },
             ];
             $readirArr[$type]();
         }
@@ -174,7 +173,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
      */
     public static function registrationMeta()
     {
-        if(Yii::$app->request->isConsoleRequest){
+        if (Yii::$app->request->isConsoleRequest) {
             return;
         }
 
@@ -190,19 +189,19 @@ class Module extends \yii\base\Module implements BootstrapInterface
             $rows = Meta::find()->asArray()->all();
             foreach ($rows as $row) {
                 if (preg_match('~' . preg_quote($row['key']) . '~', $cacheUrlName, $matches)) {
-                    $metas[ $row['name'] ] = $row;
+                    $metas[$row['name']] = $row;
                 }
             }
-            if($metas) {
+            if ($metas) {
                 Yii::$app->getCache()->set(
-                  $cacheUrlName,
-                  $metas,
-                  $cacheExpire
+                    $cacheUrlName,
+                    $metas,
+                    $cacheExpire
                 );
             }
         }
 
-        if($metas) {
+        if ($metas) {
             foreach ($metas as $meta) {
                 switch ($meta['name']) {
                     case Meta::KEY_TITLE:
@@ -211,9 +210,14 @@ class Module extends \yii\base\Module implements BootstrapInterface
                     case Meta::KEY_DESCRIPTION:
                     case Meta::KEY_KEYWORDS:
                         Yii::$app->controller->getView()->registerMetaTag([
-                          'name' => self::keyToName($meta['name']),
-                          'content' => $meta['content'],
+                            'name' => self::keyToName($meta['name']),
+                            'content' => $meta['content'],
                         ], $meta['name']);
+                        break;
+                    case Meta::KEY_H1:
+                    case Meta::KEY_H2:
+                    case Meta::KEY_H3:
+                        Yii::$app->controller->getView()->blocks[$meta['name']] = $meta['content'];
                         break;
                 }
             }

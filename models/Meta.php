@@ -24,9 +24,13 @@ use yii\web\Request;
  */
 class Meta extends ActiveRecord
 {
+    const KEY_URL = 'seoUrl';
     const KEY_TITLE = 'seoTitle';
     const KEY_DESCRIPTION = 'seoDescription';
     const KEY_KEYWORDS = 'seoKeywords';
+    const KEY_H1 = 'seoH1';
+    const KEY_H2 = 'seoH2';
+    const KEY_H3 = 'seoH3';
 
     use TagDependencyTrait;
 
@@ -96,15 +100,6 @@ class Meta extends ActiveRecord
           ]
         );
         return $dataProvider;
-    }
-
-    public function getMetaFields()
-    {
-        return [
-            Meta::KEY_TITLE => 'Title',
-            Meta::KEY_DESCRIPTION => 'Description',
-            Meta::KEY_KEYWORDS => 'Keywords',
-        ];
     }
 
 }
