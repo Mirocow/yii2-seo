@@ -44,10 +44,16 @@ class Module extends \yii\base\Module implements BootstrapInterface
      * @var int type of redirect from WWW or without WWW
      */
     public $redirectWWW = self::NO_REDIRECT;
+
     /**
      * @var bool if true redirect from url with trailing slash
      */
     public $redirectTrailingSlash = false;
+
+    /**
+     * @var int
+     */
+    public $redirectStausCode = 301;
 
     /**
      * @var array
@@ -116,10 +122,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
                 if ($app->getModule('seo')->redirectWWW != self::NO_REDIRECT) {
                     self::redirectWWW();
                 }
-                if ($app->getModule('seo')->redirectTrailingSlash == 1) {
-                    self::redirectSlash();
+                if ($app->getModule('seo')->redirectTrailingSlash == true) {
+                    self::redirectPattern('#^(.*)/$#', $this->redirectStausCode);
                 }
-
                 $app->getView()->on(View::EVENT_BEGIN_PAGE, [self::class, 'registrationMeta'], $this->include);
             }
         );
@@ -157,13 +162,15 @@ class Module extends \yii\base\Module implements BootstrapInterface
     }
 
     /**
-     * Make redirect from url with trailing slash
+     * @param string $pattern
+     * @param int $stausCode
+     * @throws \yii\base\ExitException
      */
-    public static function redirectSlash()
+    public static function redirectPattern($pattern, $stausCode = 301)
     {
-        $redirUrl = preg_replace('#^(.*)/$#', '$1', Yii::$app->request->url);
+        $redirUrl = preg_replace($pattern, '$1', Yii::$app->request->url);
         if (!empty($redirUrl) && $redirUrl !== Yii::$app->request->url) {
-            Yii::$app->response->redirect($redirUrl, 301);
+            Yii::$app->response->redirect($redirUrl, $stausCode);
             Yii::$app->end();
         }
     }
@@ -189,6 +196,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
 
         $metas = Yii::$app->getCache()->get($cacheUrlName);
+
         if ($metas === false) {
             $rows = Meta::find()->asArray()->all();
             foreach ($rows as $row) {
