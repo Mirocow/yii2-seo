@@ -3,6 +3,7 @@
 use mirocow\seo\Module;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use Yii;
 
 /* @var $this yii\web\View */
 /* @var $model mirocow\seo\models\Meta */
@@ -23,7 +24,7 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'content')->textInput(['maxlength' => true])
         ->hint('', ['class'=>'form-text text-muted']) ?>
 
-    <?= $form->field($model, 'lang')->textInput(['maxlength' => true])
+    <?= $form->field($model, 'lang')->dropDownList(Yii::$app->getModule('seo')->languages)
         ->hint('', ['class'=>'form-text text-muted']) ?>
 
     <div class="form-group">

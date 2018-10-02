@@ -22,6 +22,14 @@ class Module extends \yii\base\Module implements BootstrapInterface
     const FROM_WWW = 1;
     const FROM_WITHOUT_WWW = 2;
 
+    /**
+     * @var array
+     */
+    public $languages = [
+        'ru-RU' => 'ru-RU',
+        'en-EN' => 'en-EN'
+    ];
+
     public $backendMode = true;
 
     public $basePath = '@mirocow/seo/admin';
@@ -68,6 +76,12 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public function init()
     {
         parent::init();
+
+        if(!$this->languages){
+            $this->languages = [
+                Yii::$app->language => Yii::$app->language,
+            ];
+        }
 
         if (($app = Yii::$app) instanceof \yii\web\Application AND $this->backendMode) {
             $this->setModule('admin', [
@@ -188,30 +202,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
             return;
         }
 
-        $cacheExpire = Yii::$app->getModule('seo')->cacheExpire;
         $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
 
-        if(YII_DEBUG){
-            Yii::$app->getCache()->delete($cacheUrlName);
-        }
-
-        $metas = Yii::$app->getCache()->get($cacheUrlName);
-
-        if ($metas === false) {
-            $rows = Meta::find()->asArray()->all();
-            foreach ($rows as $row) {
-                if (preg_match('~' . preg_quote($row['key']) . '~', $cacheUrlName, $matches)) {
-                    $metas[$row['name']] = $row;
-                }
-            }
-            if ($metas) {
-                Yii::$app->getCache()->set(
-                    $cacheUrlName,
-                    $metas,
-                    $cacheExpire
-                );
-            }
-        }
+        $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName, Yii::$app->language);
 
         if ($metas) {
             foreach ($metas as $meta) {
@@ -248,6 +241,38 @@ class Module extends \yii\base\Module implements BootstrapInterface
         } else {
             return parent::createController($route);
         }
+    }
+
+    /**
+     * @param $cacheUrlName
+     * @param string $lang
+     * @return bool|mixed
+     */
+    public function getMetaData($cacheUrlName, $lang = 'ru-RU')
+    {
+        $cacheExpire = $this->cacheExpire;
+
+        $cacheKey = 'seo_' . md5($cacheUrlName . $lang);
+
+        if(YII_DEBUG){
+            Yii::$app->getCache()->delete($cacheKey);
+        }
+
+        $metas = Yii::$app->getCache()->get($cacheKey);
+
+        if ($metas === false) {
+            $rows = Meta::find()->where(['lang' => $lang])->asArray()->all();
+            foreach ($rows as $row) {
+                if (preg_match('~^' . preg_quote($row['key']) . '$~', $cacheUrlName, $matches)) {
+                    $metas[$row['name']] = $row;
+                }
+            }
+            if ($metas) {
+                Yii::$app->getCache()->set($cacheKey, $metas, $cacheExpire);
+            }
+        }
+
+        return $metas;
     }
 
 }

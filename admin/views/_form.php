@@ -30,13 +30,13 @@ if (empty($seo) || !$seo->userCanEdit) {
         }
     }
 
-    foreach ($model->languages as $lang) {
+    foreach (Yii::$app->getModule('seo')->languages as $lang) {
         foreach (Module::getMetaFields() as $key) {
 
             $attr = "{$key}[$lang]";
             $label = Module::keyToName($key);
 
-            if (count($model->languages) > 1) {
+            if (count(Yii::$app->getModule('seo')->languages) > 1) {
                 $label .= ' (' . strtoupper($lang) . ')';
             }
 

@@ -20,16 +20,6 @@ class MetaFieldsBehavior extends Behavior
 {
     public static $_controllersActions = [];
 
-    /**
-     * @var string
-     */
-    public $defaultLanguage = 'ru';
-
-    public $languages = [
-      'ru',
-      'en'
-    ];
-
     public $stopNames = [];
 
     public $metaField;
@@ -43,8 +33,6 @@ class MetaFieldsBehavior extends Behavior
     public $maxDescLength = 200;
 
     public $maxKeysLength = 200;
-
-    public $encoding = 'UTF-8';
 
     /**
      * @return array
@@ -209,15 +197,20 @@ class MetaFieldsBehavior extends Behavior
         }
     }
 
+    /**
+     * @param $fieldName
+     * @param null $lang
+     * @return bool
+     */
     private function setSeoField($fieldName, $lang = null)
     {
         if($this->isProduceFunc($fieldName)) {
             $cacheUrlName = $this->getSeoUrl();
-            $meta = $this->getMetaData($cacheUrlName, $lang);
-            if(empty($meta[$fieldName])){
+            $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName, Yii::$app->language);
+            if(empty($metas[$fieldName])){
                 return false;
             }
-            return $meta[$fieldName];
+            return $metas[$fieldName];
         }
     }
 
@@ -233,37 +226,11 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param $cacheUrlName
-     * @return array
-     */
-    private function getMetaData($cacheUrlName, $lang = 'ru')
-    {
-        $metas = [];
-        $rows = Meta::find()->where(['lang' => $lang])->asArray()->all();
-        foreach ($rows as $row) {
-            if (preg_match('~' . $row['key'] . '~', $cacheUrlName, $matches)) {
-                $metas[$row['name']] = $row['content'];
-            }
-        }
-
-        return $metas;
-    }
-
-    /**
      * @param \yii\base\Component $owner
      */
     public function attach ($owner)
     {
         parent::attach($owner);
-
-        $this->languages = (array) $this->languages;
-
-        // If there was not passed any language - we use only one system language.
-        if (!count($this->languages)) {
-            $this->languages = [
-              Yii::$app->language
-            ];
-        }
 
         // if the current user can see and edit SEO-data model
         if (is_callable($this->userCanEdit)) {
@@ -341,7 +308,7 @@ class MetaFieldsBehavior extends Behavior
 
             Meta::deleteAll(['key' => $cacheUrlName]);
             foreach (Module::getMetaFields() as $key) {
-                foreach ($this->languages as $language) {
+                foreach (Yii::$app->getModule('seo')->languages as $language) {
                     $values        = $model->{$key};
                     if(!empty($values[$language])) {
                         $meta          = new Meta;
