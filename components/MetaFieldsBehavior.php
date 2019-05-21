@@ -198,6 +198,26 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
+     * @param null $lang
+     * @return mixed
+     */
+    public function getSeoContent($lang = null)
+    {
+        return $this->setSeoField(Meta::KEY_CONTENT, $lang);
+    }
+
+    /**
+     * @param $value
+     * @return mixed
+     */
+    public function setSeoContent($value)
+    {
+        if($this->isProduceFunc(Meta::KEY_CONTENT)) {
+            return $this->owner->{Meta::KEY_CONTENT} = $value;
+        }
+    }
+
+    /**
      * @param $fieldName
      * @param null $lang
      * @return bool
@@ -270,7 +290,8 @@ class MetaFieldsBehavior extends Behavior
 
         $this->addRule($owner, 'url', 'safe');
 
-        foreach (Module::getMetaFields() as $key) {
+        $meta = Module::getMetaFields();
+        foreach ($meta as $key) {
             foreach ($this->rules() as $rule) {
                 $attributes = array_shift($rule);
                 $validator = array_shift($rule);
@@ -304,7 +325,7 @@ class MetaFieldsBehavior extends Behavior
             /** @var ActiveRecord $model */
             $model = $this->owner;
             $cacheUrlName = $this->getCacheUrlName();
-            Yii::$app->getCache()->delete($cacheUrlName);
+            Yii::$app->cache->delete($cacheUrlName);
 
             Meta::deleteAll(['key' => $cacheUrlName]);
             foreach (Module::getMetaFields() as $key) {

@@ -94,21 +94,24 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
     /**
      * Returns an array of meta-fields.
+     *
      * @param null $key
+     *
      * @return array|mixed
      */
     public static function getMetaFields($key = null, $returnOnlyKeys = true)
     {
         $fields = [
-            Meta::KEY_TITLE => 'Title',
-            Meta::KEY_DESCRIPTION => 'Description',
-            Meta::KEY_KEYWORDS => 'Keywords',
-            Meta::KEY_H1 => 'H1',
-            Meta::KEY_H2 => 'H2',
-            Meta::KEY_H3 => 'H3',
+            Meta::KEY_TITLE => Yii::t('app', 'Title'),
+            Meta::KEY_DESCRIPTION => Yii::t('app', 'Description'),
+            Meta::KEY_KEYWORDS => Yii::t('app', 'Keywords'),
+            Meta::KEY_H1 => Yii::t('app', 'H1'),
+            Meta::KEY_H2 => Yii::t('app', 'H2'),
+            Meta::KEY_H3 => Yii::t('app', 'H3'),
+            Meta::KEY_CONTENT => Yii::t('app', 'Content'),
         ];
 
-        return isset($fields[$key]) ? $fields[$key] : ($returnOnlyKeys? array_keys($fields): $fields);
+        return isset($fields[$key])? $fields[$key]: ($returnOnlyKeys? array_keys($fields): $fields);
     }
 
     /**
@@ -221,7 +224,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
                         break;
                     case Meta::KEY_H1:
                     case Meta::KEY_H2:
-                    case Meta::KEY_H3:
+                    case Meta::KEY_H2:
+                    case Meta::KEY_CONTENT:
                         Yii::$app->controller->getView()->blocks[$meta['name']] = $meta['content'];
                         break;
                 }
@@ -246,7 +250,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
     /**
      * @param $cacheUrlName
      * @param string $lang
-     * @return bool|mixed
+     * @return array|boolean
      */
     public function getMetaData($cacheUrlName, $lang = 'ru-RU')
     {
@@ -255,20 +259,20 @@ class Module extends \yii\base\Module implements BootstrapInterface
         $cacheKey = 'seo_' . md5($cacheUrlName . $lang);
 
         if(YII_DEBUG){
-            Yii::$app->getCache()->delete($cacheKey);
+            Yii::$app->cache->delete($cacheKey);
         }
 
-        $metas = Yii::$app->getCache()->get($cacheKey);
+        $metas = Yii::$app->cache->get($cacheKey);
 
         if ($metas === false) {
-            $rows = Meta::find()->where(['lang' => $lang])->asArray()->all();
+            $rows = Meta::find()->where(['lang' => $lang])->asArray()->each();
             foreach ($rows as $row) {
                 if (preg_match('~^' . preg_quote($row['key']) . '$~', $cacheUrlName, $matches)) {
-                    $metas[$row['name']] = $row;
+                    $metas[$row['name']] = $row['content'];
                 }
             }
             if ($metas) {
-                Yii::$app->getCache()->set($cacheKey, $metas, $cacheExpire);
+                Yii::$app->cache->set($cacheKey, $metas, $cacheExpire);
             }
         }
 
