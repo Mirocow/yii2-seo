@@ -31,7 +31,7 @@ if (empty($seo) || !$seo->userCanEdit) {
     }
 
     foreach (Yii::$app->getModule('seo')->languages as $lang) {
-        foreach (Module::getMetaFields() as $key) {
+        foreach ($seo->fields as $key) {
 
             $attr = "{$key}[$lang]";
             $label = Module::keyToName($key);
@@ -41,10 +41,10 @@ if (empty($seo) || !$seo->userCanEdit) {
             }
 
             if ($form instanceof ActiveForm) {
-                $input = ($key == Meta::KEY_DESCRIPTION) ? 'textarea' : 'textInput';
+                $input = in_array($key, [Meta::KEY_DESCRIPTION, Meta::KEY_CONTENT]) ? 'textarea' : 'textInput';
                 echo $form->field($model, $attr)->label($label)->$input();
             } else {
-                $input = ($key == Meta::KEY_DESCRIPTION) ? 'activeTextarea' : 'activeTextInput';
+                $input = in_array($key, [Meta::KEY_DESCRIPTION, Meta::KEY_CONTENT]) ? 'activeTextarea' : 'activeTextInput';
                 echo '<div class="seo_row">';
                     echo Html::activeLabel($model, $attr, [
                         'label' => $label

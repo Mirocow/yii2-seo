@@ -210,23 +210,23 @@ class Module extends \yii\base\Module implements BootstrapInterface
         $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName, Yii::$app->language);
 
         if ($metas) {
-            foreach ($metas as $meta) {
-                switch ($meta['name']) {
+            foreach ($metas as $name => $meta) {
+                switch ($name) {
                     case Meta::KEY_TITLE:
-                        Yii::$app->controller->getView()->title = $meta['content'];
+                        Yii::$app->controller->getView()->title = $meta;
                         break;
                     case Meta::KEY_DESCRIPTION:
                     case Meta::KEY_KEYWORDS:
                         Yii::$app->controller->getView()->registerMetaTag([
-                            'name' => self::keyToName($meta['name']),
-                            'content' => $meta['content'],
-                        ], $meta['name']);
+                            'name' => self::keyToName($name),
+                            'content' => $meta,
+                        ], $name);
                         break;
                     case Meta::KEY_H1:
                     case Meta::KEY_H2:
                     case Meta::KEY_H2:
                     case Meta::KEY_CONTENT:
-                        Yii::$app->controller->getView()->blocks[$meta['name']] = $meta['content'];
+                        Yii::$app->controller->getView()->blocks[$name] = $meta;
                         break;
                 }
             }

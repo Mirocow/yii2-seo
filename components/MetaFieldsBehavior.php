@@ -22,6 +22,12 @@ class MetaFieldsBehavior extends Behavior
 
     public $stopNames = [];
 
+    public $fields = [
+        Meta::KEY_TITLE,
+        Meta::KEY_DESCRIPTION,
+        Meta::KEY_KEYWORDS,
+    ];
+
     public $metaField;
 
     public $userCanEdit = false;
@@ -328,7 +334,7 @@ class MetaFieldsBehavior extends Behavior
             Yii::$app->cache->delete($cacheUrlName);
 
             Meta::deleteAll(['key' => $cacheUrlName]);
-            foreach (Module::getMetaFields() as $key) {
+            foreach ($this->fields as $key) {
                 foreach (Yii::$app->getModule('seo')->languages as $language) {
                     $values        = $model->{$key};
                     if(!empty($values[$language])) {
