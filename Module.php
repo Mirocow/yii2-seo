@@ -129,6 +129,14 @@ class Module extends \yii\base\Module implements BootstrapInterface
      */
     public function bootstrap($app)
     {
+        if (Yii::$app->request->isConsoleRequest) {
+            return;
+        }
+
+        if (Yii::$app->request->isAjax === true) {
+            return;
+        }
+
         if (is_string($this->include)) {
             $this->include = explode(',', $this->include);
         }
@@ -142,7 +150,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
                 if ($app->getModule('seo')->redirectTrailingSlash == true) {
                     self::redirectPattern('#^(.*)/$#', $this->redirectStausCode);
                 }
-                $app->getView()->on(View::EVENT_BEGIN_PAGE, [self::class, 'registrationMeta'], $this->include);
+                $app->getView()->on(View::EVENT_BEFORE_RENDER, [self::class, 'registrationMeta'], $this->include);
             }
         );
     }
@@ -197,14 +205,6 @@ class Module extends \yii\base\Module implements BootstrapInterface
      */
     public static function registrationMeta()
     {
-        if (Yii::$app->request->isConsoleRequest) {
-            return;
-        }
-
-        if (Yii::$app->request->isAjax === true) {
-            return;
-        }
-
         $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
 
         $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName, Yii::$app->language);

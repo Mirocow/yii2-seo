@@ -230,18 +230,22 @@ class MetaFieldsBehavior extends Behavior
      */
     private function setSeoField($fieldName, $lang = null)
     {
-        if($this->isProduceFunc($fieldName)) {
-            $cacheUrlName = $this->getSeoUrl();
-            $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName, Yii::$app->language);
-            if(empty($metas[$fieldName])){
-                return false;
-            }
-            return $metas[$fieldName];
+        $cacheUrlName = $this->getSeoUrl();
+        $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName, Yii::$app->language);
+        if(empty($metas[$fieldName])){
+            return false;
         }
+
+        if(!$lang){
+            $lang = Yii::$app->language;
+        }
+
+        return [$lang => $metas[$fieldName]];
     }
 
     /**
      * @param $name
+     *
      * @return bool
      */
     private function isProduceFunc($name)
@@ -252,113 +256,48 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param \yii\base\Component $owner
-     */
-    public function attach ($owner)
-    {
-        parent::attach($owner);
-
-        // if the current user can see and edit SEO-data model
-        if (is_callable($this->userCanEdit)) {
-            $this->userCanEdit = call_user_func($this->userCanEdit, $owner);
-        }
-
-        // Determine the controller and add it actions to the seo url stop list
-        if (!empty($this->seoUrl) && !empty($this->controllerClassName)) {
-            if (isset(static::$_controllersActions[$this->controllerClassName])) {
-                // Obtain the previously defined controller actions
-                $buffer = static::$_controllersActions[$this->controllerClassName];
-            } else {
-                // Get all actions of controller
-                $reflection = new \ReflectionClass($this->controllerClassName);
-                $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC);
-                $controller = $reflection->newInstance(Yii::$app->getUniqueId(), null);
-                // Add all reusable controller actions
-                $buffer = array_keys($controller->actions());
-                // Loop through all the main controller actions
-                foreach ($methods as $method) {
-                    /* @var $method \ReflectionMethod */
-                    $name = $method->getName();
-                    if ($name !== 'actions' && substr($name, 0, 6) == 'action') {
-                        $action = substr($name, 6, strlen($name));
-                        $action[0] = strtolower($action[0]);
-                        $buffer[] = $action;
-                    }
-                }
-
-                // Save controller actions for later use
-                static::$_controllersActions[$this->controllerClassName] = $buffer;
-            }
-
-            // Merge controller actions with actions from config behavior
-            $this->stopNames = array_unique(array_merge($this->stopNames, $buffer));
-        }
-
-        $this->addRule($owner, 'url', 'safe');
-
-        $meta = Module::getMetaFields();
-        foreach ($meta as $key) {
-            foreach ($this->rules() as $rule) {
-                $attributes = array_shift($rule);
-                $validator = array_shift($rule);
-                foreach ($attributes as $attribute) {
-                    $this->addRule($owner, $attribute, $validator, $rule);
-                }
-            }
-        }
-    }
-
-    /**
      * @param ActiveRecord $model
-     * @param $attributes
+     * @param $attribute
      * @param $validator
      * @param array $options
      * @return $model
      */
-    public function addRule($model, $attributes, $validator, $options = [])
+    public function addRule($model, $attribute, $validator, $options = [])
     {
-        $validators = $model->getValidators();
-        $validators->append(Validator::createValidator($validator, $model, (array) $attributes, $options));
-        return $model;
+        $this->owner->validators[] = Validator::createValidator($validator, $model, $attribute);
     }
 
+    /**
+     * @throws \yii\base\InvalidConfigException
+     */
     public function afterSave ()
     {
         if(Yii::$app->request->isConsoleRequest) return;
 
         if(Yii::$app->request->isPost) {
 
-            /** @var ActiveRecord $model */
-            $model = $this->owner;
-            $cacheUrlName = $this->getCacheUrlName();
+            /** @var ActiveRecord $owner */
+            $owner = $this->owner;
+            $cacheUrlName = $this->owner->getSeoUrl();
             Yii::$app->cache->delete($cacheUrlName);
 
             Meta::deleteAll(['key' => $cacheUrlName]);
+            $values = Yii::$app->request->post($owner->formName());
             foreach ($this->fields as $key) {
                 foreach (Yii::$app->getModule('seo')->languages as $language) {
-                    $values        = $model->{$key};
-                    if(!empty($values[$language])) {
+                    if(!empty($values[$key][$language])) {
                         $meta          = new Meta;
                         $meta->key     = $cacheUrlName;
                         $meta->name    = $key;
                         $meta->lang    = $language;
-                        $meta->content = $values[$language];
-                        $meta->save(false);
+                        $meta->content = $values[$key][$language];
+                        $meta->save();
                     }
                 }
             }
 
         }
 
-    }
-
-    /**
-     * @return string
-     */
-    public function getCacheUrlName()
-    {
-        $cacheUrlName = $this->owner->getSeoUrl();
-        return ltrim($cacheUrlName, '/');
     }
 
 }
