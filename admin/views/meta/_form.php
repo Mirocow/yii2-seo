@@ -23,9 +23,6 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'content')->textInput(['maxlength' => true])
         ->hint('', ['class'=>'form-text text-muted']) ?>
 
-    <?= $form->field($model, 'lang')->dropDownList(Yii::$app->getModule('seo')->languages)
-        ->hint('', ['class'=>'form-text text-muted']) ?>
-
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
     </div>

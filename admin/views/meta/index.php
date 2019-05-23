@@ -39,8 +39,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
             ],
             'content',
-            'lang',
-
             [
                 'class' => 'yii\grid\ActionColumn',
                 'template' => '{update}{delete}',

@@ -30,31 +30,24 @@ if (empty($seo) || !$seo->userCanEdit) {
         }
     }
 
-    foreach (Yii::$app->getModule('seo')->languages as $lang) {
-        foreach ($seo->fields as $key) {
+    foreach ($seo->fields as $attr) {
 
-            $attr = "{$key}[$lang]";
-            $label = Module::keyToName($key);
+        $label = Module::keyToName($attr);
 
-            if (count(Yii::$app->getModule('seo')->languages) > 1) {
-                $label .= ' (' . strtoupper($lang) . ')';
-            }
-
-            if ($form instanceof ActiveForm) {
-                $input = in_array($key, [Meta::KEY_DESCRIPTION, Meta::KEY_CONTENT]) ? 'textarea' : 'textInput';
-                echo $form->field($model, $attr)->label($label)->$input();
-            } else {
-                $input = in_array($key, [Meta::KEY_DESCRIPTION, Meta::KEY_CONTENT]) ? 'activeTextarea' : 'activeTextInput';
-                echo '<div class="seo_row">';
-                    echo Html::activeLabel($model, $attr, [
-                        'label' => $label
-                    ]);
-                    echo Html::$input($model, $attr);
-                    echo Html::error($model, $attr);
-                echo '</div>';
-            }
-
+        if ($form instanceof ActiveForm) {
+            $input = in_array($attr, [Meta::KEY_DESCRIPTION, Meta::KEY_CONTENT]) ? 'textarea' : 'textInput';
+            echo $form->field($model, $attr)->label($label)->$input();
+        } else {
+            $input = in_array($attr, [Meta::KEY_DESCRIPTION, Meta::KEY_CONTENT]) ? 'activeTextarea' : 'activeTextInput';
+            echo '<div class="seo_row">';
+            echo Html::activeLabel($model, $attr, [
+                'label' => $label
+            ]);
+            echo Html::$input($model, $attr);
+            echo Html::error($model, $attr);
+            echo '</div>';
         }
+
     }
     ?>
 </fieldset>

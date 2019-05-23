@@ -15,7 +15,6 @@ use yii\db\ActiveRecord;
  * @property string $key
  * @property string $name
  * @property integer $content
- * @property string $lang
  * @property string $hash
  * @property string metaFieldName
  */
@@ -46,11 +45,10 @@ class Meta extends ActiveRecord
     public function rules()
     {
         return [
-            [['key', 'name', 'content', 'lang'], 'required'],
+            [['key', 'name', 'content'], 'required'],
             [['hash'], 'string', 'max' => 32],
-            [['key', 'name', 'lang'], 'unique', 'targetAttribute' => ['hash']],
+            [['key', 'name'], 'unique', 'targetAttribute' => ['hash']],
             [['key', 'name', 'content'], 'string', 'max' => 255],
-            [['lang'], 'string', 'max' => 5]
         ];
     }
 
@@ -63,7 +61,6 @@ class Meta extends ActiveRecord
             'key' => \Yii::t('app', 'Key'),
             'name' => \Yii::t('app', 'Name'),
             'content' => \Yii::t('app', 'Content'),
-            'lang' => \Yii::t('app', 'Language'),
         ];
     }
 
@@ -73,7 +70,7 @@ class Meta extends ActiveRecord
             $this->key = UrlHelper::clean($this->key);
         }
 
-        $this->hash = md5($this->key . $this->name . $this->lang);
+        $this->hash = md5($this->key . $this->name);
 
         return parent::beforeValidate();
     }
@@ -92,6 +89,7 @@ class Meta extends ActiveRecord
                 $query->andWhere("`$name` LIKE :$name", [":$name" => "%{$value}%"]);
             }
         }
+
         $dataProvider = new ActiveDataProvider(
           [
             'query' => $query,
@@ -100,6 +98,7 @@ class Meta extends ActiveRecord
             ],
           ]
         );
+
         return $dataProvider;
     }
 

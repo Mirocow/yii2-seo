@@ -6,7 +6,6 @@ use mirocow\seo\models\Meta;
 use mirocow\seo\Module;
 use Yii;
 use yii\base\Behavior;
-use yii\caching\TagDependency;
 use yii\db\ActiveRecord;
 use yii\validators\Validator;
 
@@ -84,12 +83,11 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param null $lang
      * @return mixed
      */
-    public function getSeoTitle($lang = null)
+    public function getSeoTitle()
     {
-        return $this->setSeoField(Meta::KEY_TITLE, $lang);
+        return $this->setSeoField(Meta::KEY_TITLE);
     }
 
     /**
@@ -104,12 +102,11 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param null $lang
      * @return mixed
      */
-    public function getSeoDescription($lang = null)
+    public function getSeoDescription()
     {
-        return $this->setSeoField(Meta::KEY_DESCRIPTION, $lang);
+        return $this->setSeoField(Meta::KEY_DESCRIPTION);
     }
 
     /**
@@ -124,12 +121,11 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param null $lang
      * @return mixed
      */
-    public function getSeoKeywords($lang = null)
+    public function getSeoKeywords()
     {
-        return $this->setSeoField(Meta::KEY_KEYWORDS, $lang);
+        return $this->setSeoField(Meta::KEY_KEYWORDS);
     }
 
     /**
@@ -144,12 +140,11 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param null $lang
      * @return bool|mixed
      */
-    public function getSeoH1($lang = null)
+    public function getSeoH1()
     {
-        return $this->setSeoField(Meta::KEY_H1, $lang);
+        return $this->setSeoField(Meta::KEY_H1);
     }
 
     /**
@@ -164,12 +159,11 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param null $lang
      * @return bool|mixed
      */
-    public function getSeoH2($lang = null)
+    public function getSeoH2()
     {
-        return $this->setSeoField(Meta::KEY_H2, $lang);
+        return $this->setSeoField(Meta::KEY_H2);
     }
 
     /**
@@ -184,12 +178,11 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param null $lang
      * @return bool|mixed
      */
-    public function getSeoH3($lang = null)
+    public function getSeoH3()
     {
-        return $this->setSeoField(Meta::KEY_H3, $lang);
+        return $this->setSeoField(Meta::KEY_H3);
     }
 
     /**
@@ -204,12 +197,11 @@ class MetaFieldsBehavior extends Behavior
     }
 
     /**
-     * @param null $lang
      * @return mixed
      */
-    public function getSeoContent($lang = null)
+    public function getSeoContent()
     {
-        return $this->setSeoField(Meta::KEY_CONTENT, $lang);
+        return $this->setSeoField(Meta::KEY_CONTENT);
     }
 
     /**
@@ -225,22 +217,17 @@ class MetaFieldsBehavior extends Behavior
 
     /**
      * @param $fieldName
-     * @param null $lang
      * @return bool
      */
-    private function setSeoField($fieldName, $lang = null)
+    private function setSeoField($fieldName)
     {
         $cacheUrlName = $this->getSeoUrl();
-        $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName, Yii::$app->language);
+        $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName);
         if(empty($metas[$fieldName])){
             return false;
         }
 
-        if(!$lang){
-            $lang = Yii::$app->language;
-        }
-
-        return [$lang => $metas[$fieldName]];
+        return $metas[$fieldName];
     }
 
     /**
@@ -284,15 +271,12 @@ class MetaFieldsBehavior extends Behavior
             Meta::deleteAll(['key' => $cacheUrlName]);
             $values = Yii::$app->request->post($owner->formName());
             foreach ($this->fields as $key) {
-                foreach (Yii::$app->getModule('seo')->languages as $language) {
-                    if(!empty($values[$key][$language])) {
-                        $meta          = new Meta;
-                        $meta->key     = $cacheUrlName;
-                        $meta->name    = $key;
-                        $meta->lang    = $language;
-                        $meta->content = $values[$key][$language];
-                        $meta->save();
-                    }
+                if (!empty($values[$key])) {
+                    $meta = new Meta;
+                    $meta->key = $cacheUrlName;
+                    $meta->name = $key;
+                    $meta->content = $values[$key];
+                    $meta->save();
                 }
             }
 

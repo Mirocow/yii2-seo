@@ -18,7 +18,7 @@ class MetaSearch extends Meta
     public function rules()
     {
         return [
-            [['key', 'name', 'content', 'lang'], 'safe'],
+            [['key', 'name', 'content'], 'safe'],
         ];
     }
 
@@ -59,8 +59,7 @@ class MetaSearch extends Meta
         // grid filtering conditions
         $query->andFilterWhere(['like', 'key', $this->key])
             ->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'content', $this->content])
-            ->andFilterWhere(['like', 'lang', $this->lang]);
+            ->andFilterWhere(['like', 'content', $this->content]);
 
         return $dataProvider;
     }

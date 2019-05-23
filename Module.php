@@ -23,14 +23,6 @@ class Module extends \yii\base\Module implements BootstrapInterface
     const FROM_WWW = 1;
     const FROM_WITHOUT_WWW = 2;
 
-    /**
-     * @var array
-     */
-    public $languages = [
-        'ru-RU' => 'ru-RU',
-        'en-EN' => 'en-EN'
-    ];
-
     public $backendMode = true;
 
     public $basePath = '@mirocow/seo/admin';
@@ -82,12 +74,6 @@ class Module extends \yii\base\Module implements BootstrapInterface
     public function init()
     {
         parent::init();
-
-        if(!$this->languages){
-            $this->languages = [
-                Yii::$app->language => Yii::$app->language,
-            ];
-        }
 
         if (($app = Yii::$app) instanceof \yii\web\Application AND $this->backendMode) {
             $this->setModule('admin', [
@@ -210,7 +196,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
     {
         $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
 
-        $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName, Yii::$app->language);
+        $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName);
 
         if ($metas) {
             foreach ($metas as $name => $meta) {
@@ -252,15 +238,13 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
     /**
      * @param $cacheUrlName
-     * @param string $lang
-     *
      * @return array|bool|mixed
      */
-    public function getMetaData($cacheUrlName, $lang = 'ru-RU')
+    public function getMetaData($cacheUrlName)
     {
         $cacheExpire = $this->cacheExpire;
 
-        $cacheKey = 'seo_' . md5($cacheUrlName . $lang);
+        $cacheKey = 'seo_' . md5($cacheUrlName);
 
         if(YII_DEBUG){
             Yii::$app->cache->delete($cacheKey);
@@ -269,11 +253,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
         $metas = Yii::$app->cache->get($cacheKey);
 
         if ($metas === false) {
-            $rows = Meta::find()->where(['lang' => $lang])->asArray()->each();
-            foreach ($rows as $row) {
-                if (preg_match('~^' . preg_quote($row['key']) . '$~', $cacheUrlName, $matches)) {
-                    $metas[$row['name']] = $row['content'];
-                }
+            $rows = Meta::find()->where(['REGEXP', 'key' , '^' . preg_quote($cacheUrlName) . '$'])->asArray()->all();
+            foreach ($rows as $row){
+                $metas[$row['name']] = $row['content'];
             }
             $metas = ArrayHelper::merge($metas, $this->metas);
             if ($metas) {
