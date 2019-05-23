@@ -6,6 +6,7 @@ use mirocow\seo\helpers\UrlHelper;
 use mirocow\seo\models\Meta;
 use Yii;
 use yii\base\BootstrapInterface;
+use yii\helpers\ArrayHelper;
 use yii\web\Application;
 use yii\web\View;
 
@@ -72,6 +73,11 @@ class Module extends \yii\base\Module implements BootstrapInterface
      * @var array
      */
     private $_models = [];
+
+    /**
+     * @var array
+     */
+    private $metas = [];
 
     public function init()
     {
@@ -200,9 +206,6 @@ class Module extends \yii\base\Module implements BootstrapInterface
         }
     }
 
-    /**
-     *
-     */
     public static function registrationMeta()
     {
         $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
@@ -250,7 +253,8 @@ class Module extends \yii\base\Module implements BootstrapInterface
     /**
      * @param $cacheUrlName
      * @param string $lang
-     * @return array|boolean
+     *
+     * @return array|bool|mixed
      */
     public function getMetaData($cacheUrlName, $lang = 'ru-RU')
     {
@@ -271,12 +275,22 @@ class Module extends \yii\base\Module implements BootstrapInterface
                     $metas[$row['name']] = $row['content'];
                 }
             }
+            $metas = ArrayHelper::merge($metas, $this->metas);
             if ($metas) {
                 Yii::$app->cache->set($cacheKey, $metas, $cacheExpire);
             }
         }
 
         return $metas;
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     */
+    public function setMetaKey(string $key, string $value)
+    {
+        $this->metas[$key] = $value;
     }
 
 }
