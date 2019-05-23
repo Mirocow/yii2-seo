@@ -82,6 +82,28 @@ class Module extends \yii\base\Module implements BootstrapInterface
                 'basePath' => $this->basePath,
             ]);
         }
+
+        $cacheExpire = $this->cacheExpire;
+
+        $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
+
+        $cacheKey = 'seo_' . md5($cacheUrlName);
+
+        if(YII_DEBUG){
+            Yii::$app->cache->delete($cacheKey);
+        }
+
+        $this->metas = Yii::$app->cache->get($cacheKey);
+
+        if ($this->metas === false) {
+            $rows = Meta::find()->where(['REGEXP', 'key' , '^' . preg_quote($cacheUrlName) . '$'])->asArray()->all();
+            foreach ($rows as $row){
+                $this->metas[$row['name']] = $row['content'];
+            }
+            if ($this->metas) {
+                Yii::$app->cache->set($cacheKey, $this->metas, $cacheExpire);
+            }
+        }
     }
 
     /**
@@ -194,9 +216,7 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
     public static function registrationMeta()
     {
-        $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
-
-        $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName);
+        $metas = Yii::$app->getModule('seo')->getMetaData();
 
         if ($metas) {
             foreach ($metas as $name => $meta) {
@@ -240,30 +260,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
      * @param $cacheUrlName
      * @return array|bool|mixed
      */
-    public function getMetaData($cacheUrlName)
+    public function getMetaData()
     {
-        $cacheExpire = $this->cacheExpire;
-
-        $cacheKey = 'seo_' . md5($cacheUrlName);
-
-        if(YII_DEBUG){
-            Yii::$app->cache->delete($cacheKey);
-        }
-
-        $metas = Yii::$app->cache->get($cacheKey);
-
-        if ($metas === false) {
-            $rows = Meta::find()->where(['REGEXP', 'key' , '^' . preg_quote($cacheUrlName) . '$'])->asArray()->all();
-            foreach ($rows as $row){
-                $metas[$row['name']] = $row['content'];
-            }
-            $metas = ArrayHelper::merge($metas, $this->metas);
-            if ($metas) {
-                Yii::$app->cache->set($cacheKey, $metas, $cacheExpire);
-            }
-        }
-
-        return $metas;
+        return $this->metas;
     }
 
     /**

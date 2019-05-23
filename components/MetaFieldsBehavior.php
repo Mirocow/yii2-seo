@@ -221,8 +221,7 @@ class MetaFieldsBehavior extends Behavior
      */
     private function setSeoField($fieldName)
     {
-        $cacheUrlName = $this->getSeoUrl();
-        $metas = Yii::$app->getModule('seo')->getMetaData($cacheUrlName);
+        $metas = Yii::$app->getModule('seo')->getMetaData();
         if(empty($metas[$fieldName])){
             return false;
         }
@@ -271,7 +270,7 @@ class MetaFieldsBehavior extends Behavior
             Meta::deleteAll(['key' => $cacheUrlName]);
             $values = Yii::$app->request->post($owner->formName());
             foreach ($this->fields as $key) {
-                if (!empty($values[$key])) {
+                if (!empty($values[$key] && $owner->{$key} <> $values[$key])) {
                     $meta = new Meta;
                     $meta->key = $cacheUrlName;
                     $meta->name = $key;

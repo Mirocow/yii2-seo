@@ -1,9 +1,9 @@
 <?php
 
+use mirocow\seo\models\Meta;
 use mirocow\seo\Module;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-use mirocow\seo\models\Meta;
 
 /* @var $this yii\web\View */
 /* @var $model mirocow\seo\models\Meta */
