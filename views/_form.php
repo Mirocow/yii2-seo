@@ -9,6 +9,7 @@ use yii\widgets\ActiveForm;
 /* @var $model mirocow\seo\models\Meta */
 /* @var $seo mirocow\seo\components\MetaFieldsBehavior */
 $seo = $model->getBehavior('seo');
+Yii::$app->getModule('seo')->loadMetaData($seo->seoUrl);
 
 if (empty($seo) || !$seo->userCanEdit) {
     return;

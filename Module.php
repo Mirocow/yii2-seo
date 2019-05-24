@@ -83,9 +83,15 @@ class Module extends \yii\base\Module implements BootstrapInterface
             ]);
         }
 
-        $cacheExpire = $this->cacheExpire;
-
         $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
+
+        $this->loadMetaData($cacheUrlName);
+
+    }
+
+    public function loadMetaData($cacheUrlName)
+    {
+        $cacheExpire = $this->cacheExpire;
 
         $cacheKey = 'seo_' . md5($cacheUrlName);
 
