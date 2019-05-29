@@ -6,6 +6,7 @@ use mirocow\seo\models\Meta;
 use mirocow\seo\Module;
 use Yii;
 use yii\base\Behavior;
+use yii\base\Model;
 use yii\db\ActiveRecord;
 use yii\validators\Validator;
 
@@ -38,6 +39,8 @@ class MetaFieldsBehavior extends Behavior
     public $maxDescLength = 200;
 
     public $maxKeysLength = 200;
+
+    public $scenario = Model::SCENARIO_DEFAULT;
 
     /**
      * @return array
@@ -264,23 +267,29 @@ class MetaFieldsBehavior extends Behavior
 
             /** @var ActiveRecord $owner */
             $owner = $this->owner;
-            $cacheUrlName = $this->owner->getSeoUrl();
-            Yii::$app->cache->delete($cacheUrlName);
 
-            Meta::deleteAll(['key' => $cacheUrlName]);
-            $values = Yii::$app->request->post($owner->formName());
-            foreach ($this->fields as $key) {
-                if (!empty($values[$key] && $owner->{$key} <> $values[$key])) {
-                    $meta = new Meta;
-                    $meta->key = $cacheUrlName;
-                    $meta->name = $key;
-                    $meta->content = $values[$key];
-                    $meta->save();
+            if($this->userCanEdit && $owner->scenario == $this->scenario) {
+
+                $cacheUrlName = $this->owner->getSeoUrl();
+                Yii::$app->cache->delete($cacheUrlName);
+
+                Meta::deleteAll(['key' => $cacheUrlName]);
+                $values = Yii::$app->request->post($owner->formName());
+                foreach ($this->fields as $key) {
+                    if(method_exists($owner, $key)) {
+                        if (!empty($values[$key] && $owner->{$key} <> $values[$key])) {
+                            $meta = new Meta;
+                            $meta->key = $cacheUrlName;
+                            $meta->name = $key;
+                            $meta->content = $values[$key];
+                            $meta->save();
+                        }
+                    }
                 }
+
             }
 
         }
-
     }
 
 }
