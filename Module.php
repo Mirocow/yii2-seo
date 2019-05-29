@@ -85,7 +85,9 @@ class Module extends \yii\base\Module implements BootstrapInterface
 
         if(!Yii::$app->request->isConsoleRequest) {
 
-            $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
+            $url = Yii::$app->getRequest()->hostInfo . \Yii::$app->request->url;
+
+            $cacheUrlName = UrlHelper::clean($url);
 
             $this->loadMetaData($cacheUrlName);
 
