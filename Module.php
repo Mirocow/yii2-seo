@@ -83,9 +83,13 @@ class Module extends \yii\base\Module implements BootstrapInterface
             ]);
         }
 
-        $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
+        if(!Yii::$app->request->isConsoleRequest) {
 
-        $this->loadMetaData($cacheUrlName);
+            $cacheUrlName = UrlHelper::clean(\Yii::$app->request->url);
+
+            $this->loadMetaData($cacheUrlName);
+
+        }
 
     }
 
