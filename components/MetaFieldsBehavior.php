@@ -275,13 +275,14 @@ class MetaFieldsBehavior extends Behavior
 
                 Meta::deleteAll(['key' => $cacheUrlName]);
                 $values = Yii::$app->request->post($owner->formName());
-                foreach ($this->fields as $key) {
-                    if(method_exists($owner, $key)) {
-                        if (!empty($values[$key] && $owner->{$key} <> $values[$key])) {
+                foreach ($this->fields as $name) {
+                    $getter = 'get' . ucfirst($name);
+                    if(method_exists($owner, $getter)) {
+                        if (!empty($values[$name] && $owner->{$name} <> $values[$name])) {
                             $meta = new Meta;
                             $meta->key = $cacheUrlName;
-                            $meta->name = $key;
-                            $meta->content = $values[$key];
+                            $meta->name = $name;
+                            $meta->content = $values[$name];
                             $meta->save();
                         }
                     }
