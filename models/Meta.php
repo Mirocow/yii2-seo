@@ -48,7 +48,8 @@ class Meta extends ActiveRecord
             [['key', 'name', 'content'], 'required'],
             [['hash'], 'string', 'max' => 32],
             [['key', 'name'], 'unique', 'targetAttribute' => ['hash']],
-            [['key', 'name', 'content'], 'string', 'max' => 255],
+            [['key', 'name'], 'string', 'max' => 255],
+            [['content'], 'string'],
         ];
     }
 
