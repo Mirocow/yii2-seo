@@ -18,7 +18,7 @@ class MetaSearch extends Meta
     public function rules()
     {
         return [
-            [['key', 'name', 'content'], 'safe'],
+            [['key', 'name', 'content', 'id'], 'safe'],
         ];
     }
 
@@ -46,6 +46,7 @@ class MetaSearch extends Meta
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort'=> ['defaultOrder' => ['id'=>SORT_DESC]],
         ]);
 
         $this->load($params);
@@ -55,6 +56,8 @@ class MetaSearch extends Meta
             // $query->where('0=1');
             return $dataProvider;
         }
+
+        $query->andFilterWhere([ 'id' => $this->id]);
 
         // grid filtering conditions
         $query->andFilterWhere(['like', 'key', $this->key])
