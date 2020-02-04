@@ -270,24 +270,34 @@ class MetaFieldsBehavior extends Behavior
 
             if($this->userCanEdit && $owner->scenario == $this->scenario) {
 
-                $cacheUrlName = $this->owner->getSeoUrl();
-                Yii::$app->cache->delete($cacheUrlName);
-
-                Meta::deleteAll(['key' => $cacheUrlName]);
+                $data = [];
                 $values = Yii::$app->request->post($owner->formName());
+
                 foreach ($this->fields as $name) {
                     $getter = 'get' . ucfirst($name);
-                    if(method_exists($owner, $getter)) {
+                    if (method_exists($owner, $getter)) {
                         if (!empty($values[$name] && $owner->{$name} <> $values[$name])) {
-                            $meta = new Meta;
-                            $meta->key = $cacheUrlName;
-                            $meta->name = $name;
-                            $meta->content = $values[$name];
-                            $meta->save();
+                            $data[] = [
+                                'key' => $cacheUrlName,
+                                'name' => $name,
+                                'content' => $values[$name],
+                            ];
                         }
                     }
                 }
 
+                if($data) {
+                    $cacheUrlName = $this->owner->getSeoUrl();
+                    Yii::$app->cache->delete($cacheUrlName);
+                    Meta::deleteAll(['key' => $cacheUrlName]);
+                    foreach ($data as $item) {
+                        $meta = new Meta;
+                        $meta->key = $item['key'];
+                        $meta->name = $item['name'];
+                        $meta->content = $item['content'];
+                        $meta->save();
+                    }
+                }
             }
 
         }
