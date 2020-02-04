@@ -272,6 +272,7 @@ class MetaFieldsBehavior extends Behavior
 
                 $data = [];
                 $values = Yii::$app->request->post($owner->formName());
+                $cacheUrlName = $this->owner->getSeoUrl();
 
                 foreach ($this->fields as $name) {
                     $getter = 'get' . ucfirst($name);
@@ -287,7 +288,6 @@ class MetaFieldsBehavior extends Behavior
                 }
 
                 if($data) {
-                    $cacheUrlName = $this->owner->getSeoUrl();
                     Yii::$app->cache->delete($cacheUrlName);
                     Meta::deleteAll(['key' => $cacheUrlName]);
                     foreach ($data as $item) {
