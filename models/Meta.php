@@ -28,6 +28,11 @@ class Meta extends ActiveRecord
     const KEY_H2 = 'seoH2';
     const KEY_H3 = 'seoH3';
     const KEY_CONTENT = 'seoContent';
+    const KEY_BEFORE = 'seoBefore';
+    const KEY_AFTER = 'seoAfter';
+    const KEY_CUSTOM_CONTENT_1 = 'seoCustomContent1';
+    const KEY_CUSTOM_CONTENT_2 = 'seoCustomContent2';
+    const KEY_CUSTOM_CONTENT_3 = 'seoCustomContent3';
 
     use TagDependencyTrait;
 

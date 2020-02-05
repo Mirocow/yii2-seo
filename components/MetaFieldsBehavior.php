@@ -29,17 +29,11 @@ class MetaFieldsBehavior extends Behavior
     ];
 
     public $metaField;
-
     public $userCanEdit = false;
-
     public $controllerClassName;
-
     public $maxTitleLength = 200;
-
     public $maxDescLength = 200;
-
     public $maxKeysLength = 200;
-
     public $scenario = Model::SCENARIO_DEFAULT;
 
     /**

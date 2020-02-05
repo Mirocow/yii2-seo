@@ -135,6 +135,11 @@ class Module extends \yii\base\Module implements BootstrapInterface
             Meta::KEY_H2 => Yii::t('app', 'H2'),
             Meta::KEY_H3 => Yii::t('app', 'H3'),
             Meta::KEY_CONTENT => Yii::t('app', 'Content'),
+            Meta::KEY_BEFORE => Yii::t('app', 'Before'),
+            Meta::KEY_AFTER => Yii::t('app', 'After'),
+            Meta::KEY_CUSTOM_CONTENT_1 => Yii::t('app', 'Custom content 1'),
+            Meta::KEY_CUSTOM_CONTENT_2 => Yii::t('app', 'Custom content 2'),
+            Meta::KEY_CUSTOM_CONTENT_3 => Yii::t('app', 'Custom content 3'),
         ];
 
         return isset($fields[$key])? $fields[$key]: ($returnOnlyKeys? array_keys($fields): $fields);
