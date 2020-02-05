@@ -8,6 +8,7 @@ use DevGroup\TagDependencyHelper\TagDependencyTrait;
 use mirocow\seo\helpers\UrlHelper;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveRecord;
+use Yii;
 
 /**
  * This is the model class for table "seo_meta".
@@ -79,6 +80,13 @@ class Meta extends ActiveRecord
         $this->hash = md5($this->key . $this->name);
 
         return parent::beforeValidate();
+    }
+
+    public function afterSave($insert, $changedAttributes)
+    {
+        $cacheKey = 'seo_' . md5($this->key);
+        Yii::$app->cache->delete($cacheKey);
+        parent::afterSave($insert, $changedAttributes);
     }
 
     /**

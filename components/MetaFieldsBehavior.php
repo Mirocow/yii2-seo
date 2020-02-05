@@ -282,7 +282,8 @@ class MetaFieldsBehavior extends Behavior
                 }
 
                 if($data) {
-                    Yii::$app->cache->delete($cacheUrlName);
+                    $cacheKey = 'seo_' . md5($cacheUrlName);
+                    Yii::$app->cache->delete($cacheKey);
                     Meta::deleteAll(['key' => $cacheUrlName]);
                     foreach ($data as $item) {
                         $meta = new Meta;
