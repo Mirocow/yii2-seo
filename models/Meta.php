@@ -89,6 +89,13 @@ class Meta extends ActiveRecord
         parent::afterSave($insert, $changedAttributes);
     }
 
+    public function afterDelete()
+    {
+        $cacheKey = 'seo_' . md5($this->key);
+        Yii::$app->cache->delete($cacheKey);
+        parent::afterDelete();
+    }
+
     /**
      * Search meta tags
      * @param $params
