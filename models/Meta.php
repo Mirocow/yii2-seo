@@ -52,6 +52,7 @@ class Meta extends ActiveRecord
     {
         return [
             [['key', 'name', 'content'], 'required'],
+            [['key', 'name', 'content'], 'filter', 'filter' => 'trim', 'skipOnArray' => true],
             [['hash'], 'string', 'max' => 32],
             [['key', 'name'], 'unique', 'targetAttribute' => ['hash']],
             [['key', 'name'], 'string', 'max' => 255],
