@@ -271,7 +271,7 @@ class MetaFieldsBehavior extends Behavior
                 foreach ($this->fields as $name) {
                     $getter = 'get' . ucfirst($name);
                     if (method_exists($owner, $getter)) {
-                        if (!empty($values[$name] && $owner->{$name} <> $values[$name])) {
+                        if (!empty($values[$name]) && $owner->{$name} <> $values[$name]) {
                             $data[] = [
                                 'key' => $cacheUrlName,
                                 'name' => $name,
